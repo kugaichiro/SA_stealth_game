@@ -108,6 +108,7 @@ class SubMenuPopUp(MenuScreen):
     def draw_sub_menu(self):
         pygame.draw.rect(self.screen, (0, 0, 0), (self.popup_width, self.popup_height,
                                                   self.popup_width, self.screen_height))
+        
 
 
 pygame.init()

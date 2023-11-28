@@ -7,6 +7,7 @@ from prototype.operation.operation_User import Operation
 class GameScreen(object):
 
     def __init__(self, screen_width, screen_height):
+        
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.direction_key = None
