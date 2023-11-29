@@ -3,6 +3,7 @@ import sys
 from pygame.locals import *
 
 from prototype.operation.operation_User import Operation
+from prototype.model.load_data import LoadData
 import parts
 
 
@@ -23,9 +24,12 @@ class MenuScreen(object):
         self.font_title = None
         self.font_button = None
         self.menu_op = Operation(0, 0)
+        self.load_data = LoadData()
+        #self.sub_menu = SubMenuPopUp(screen_width,screen_height)
 
     def expand_screen(self, caption_title):
         pygame.init()
+        self.load_data.load_option("option.csv")
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), FULLSCREEN)
         pygame.display.set_caption(caption_title)
 
@@ -75,7 +79,6 @@ class MenuScreen(object):
 
             if self.direction[self.direction_key[self.menu_op.screen_address]] == 1:
                 self.setup_menu_screen("難易度は?", Original=11, Easy=12, ホームに戻る=0)
-                pygame.init()
 
             if self.direction[self.direction_key[self.menu_op.screen_address]] == 2:
                 self.setup_menu_screen("ロード画面", セーブデータ1=21, セーブデータ2=22, セーブデータ3=23,
@@ -90,6 +93,21 @@ class MenuScreen(object):
 
             if self.direction[self.direction_key[self.menu_op.screen_address]] == 11:
                 pass
+
+            if self.direction[self.direction_key[self.menu_op.screen_address]] == 12:
+                pass
+
+            if self.direction[self.direction_key[self.menu_op.screen_address]] == 21:
+                pass
+
+            if self.direction[self.direction_key[self.menu_op.screen_address]] == 22:
+                pass
+
+            if self.direction[self.direction_key[self.menu_op.screen_address]] == 23:
+                pass
+
+            if self.direction[self.direction_key[self.menu_op.screen_address]] == 31:
+                self.sub_menu.draw_sub_menu()
 
         except TypeError:
             pass
@@ -108,8 +126,7 @@ class SubMenuPopUp(MenuScreen):
     def draw_sub_menu(self):
         pygame.draw.rect(self.screen, (0, 0, 0), (self.popup_width, self.popup_height,
                                                   self.popup_width, self.screen_height))
-        
+        # self.setup_sub_menu("スクリーン設定", フルスクリーン=,
 
 
-pygame.init()
-pygame.display.set_mode()
+

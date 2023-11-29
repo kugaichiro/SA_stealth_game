@@ -52,9 +52,11 @@ class Operation(BasicOperation):
         pygame.key.set_repeat(200, 50)
         for event in pygame.event.get():
             # キーが押されたとき
-            self.screen_address = super().get_command(self.square_y)
+            self.screen_address = super().get_command(event, self.square_y)
             super().move_y(event, last_y-1)
 
             # 右上の×ボタンが押されたとき
             super().delete_screen(event)
 
+    def game_operation(self):
+        pass
