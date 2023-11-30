@@ -1,7 +1,7 @@
 import csv
 import os
 
-import load_data
+from prototype.model import load_data
 
 class WriteData(object):
 
@@ -28,7 +28,7 @@ class WriteData(object):
             fieldnames = ['option', 'is_on']
             writer = csv.DictWriter(csvfile, fieldnames)
             writer.writeheader()
-            writer.writerow({'option': 'FULL SCREEN', 'is_on': 'True'})
+            writer.writerow({'option': 'FULL SCREEN', 'is_on': 'False'})
 
     def write_file(self, file_name: str, field_name: list, **resource):
         self.file_name = file_name
@@ -40,6 +40,3 @@ class WriteData(object):
             for key, value in self.resource.items():
                 writer.writerow({self.field_name[0]: key, self.field_name[1]: value})
 
-
-w = WriteData()
-w.change_option()

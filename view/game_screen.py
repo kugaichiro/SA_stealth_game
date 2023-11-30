@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 
-from prototype.operation.operation_User import Operation
+from prototype.operation.operation_user import Operation
 
 
 class GameScreen(object):

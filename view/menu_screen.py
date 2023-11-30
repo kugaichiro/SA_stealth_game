@@ -2,7 +2,7 @@ import pygame
 import sys
 from pygame.locals import *
 
-from prototype.operation.operation_User import Operation
+from prototype.operation.operation_user import Operation
 from prototype.model.load_data import LoadData
 import parts
 
@@ -25,12 +25,15 @@ class MenuScreen(object):
         self.font_button = None
         self.menu_op = Operation(0, 0)
         self.load_data = LoadData()
-        #self.sub_menu = SubMenuPopUp(screen_width,screen_height)
+        # self.sub_menu = SubMenuPopUp(screen_width,screen_height)
 
     def expand_screen(self, caption_title):
         pygame.init()
         self.load_data.load_option("option.csv")
-        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), FULLSCREEN)
+        if self.load_data.is_full_screen:
+            self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), FULLSCREEN)
+        else:
+            self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         pygame.display.set_caption(caption_title)
 
     def setup_menu_screen(self, title="Stealth Game", title_size=None, button_size=None, **buttons_name):
@@ -70,7 +73,17 @@ class MenuScreen(object):
 
             pygame.display.update()
             self.menu_op.menu_operation(len(self.buttons))
-            self.change_menu_screen()
+
+            try:
+                if self.direction[self.direction_key[self.menu_op.screen_address]] == "exit":
+                    pygame.quit()
+                    sys.exit()
+                self.load_data.load_menu_data_file(str(self.direction[self.direction_key[self.menu_op.screen_address]]))
+                self.setup_menu_screen(self.load_data.menu_title, **self.load_data.menu_buttons)
+            except TypeError:
+                pass
+
+            # self.change_menu_screen()
 
     def change_menu_screen(self):
         try:
@@ -127,6 +140,3 @@ class SubMenuPopUp(MenuScreen):
         pygame.draw.rect(self.screen, (0, 0, 0), (self.popup_width, self.popup_height,
                                                   self.popup_width, self.screen_height))
         # self.setup_sub_menu("スクリーン設定", フルスクリーン=,
-
-
-
