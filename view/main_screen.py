@@ -16,4 +16,5 @@ class MainScreen(object):
         self.menu.draw_menu_screen()
 
 
+
 MainScreen().draw_screen()

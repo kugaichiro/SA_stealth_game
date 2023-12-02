@@ -1,7 +1,8 @@
 import csv
 import os
 
-from prototype.model import load_data
+from prototype.model.load_data import LoadData
+
 
 class WriteData(object):
 
@@ -15,6 +16,7 @@ class WriteData(object):
         self.file_name = None
         self.field_name = None
         self.resource = None
+        self.load = LoadData()
 
     def get_directory(self):
         # ファイルのある階層のディレクトリパスを取得
@@ -22,13 +24,22 @@ class WriteData(object):
         # 1つ上の階層のディレクトリパスを取得
         self.parent_dir = os.path.abspath(os.path.join(self.current_dir, os.pardir))
 
-    def change_option(self, file="option.csv", **change):
+    def change_option(self, file="option.csv", *change):
         self.option_file_path = os.path.join(self.system_file_path, file)
-        with open(self.option_file_path, 'w', encoding="utf8", newline="") as csvfile:
-            fieldnames = ['option', 'is_on']
-            writer = csv.DictWriter(csvfile, fieldnames)
-            writer.writeheader()
-            writer.writerow({'option': 'FULL SCREEN', 'is_on': 'False'})
+        self.load.load_option()
+        if os.path.exists(self.option_file_path):
+            with open(self.option_file_path, 'w', encoding="utf8", newline="") as csvfile:
+                fieldnames = ['option', 'is_on']
+                writer = csv.DictWriter(csvfile, fieldnames)
+                writer.writeheader()
+                del self.load.options["option"]
+                for key, value in self.load.options.items():
+                    if key in change:
+                        writer.writerow({fieldnames[0]: key, fieldnames[1]: not value})
+                    else:
+                        writer.writerow({fieldnames[0]: key, fieldnames[1]: value})
+        else:
+            raise FileNotFoundError
 
     def write_file(self, file_name: str, field_name: list, **resource):
         self.file_name = file_name
@@ -39,4 +50,3 @@ class WriteData(object):
             writer.writeheader()
             for key, value in self.resource.items():
                 writer.writerow({self.field_name[0]: key, self.field_name[1]: value})
-

@@ -4,6 +4,7 @@ from pygame.locals import *
 
 from prototype.operation.operation_user import Operation
 from prototype.model.load_data import LoadData
+from prototype.model.write_data import WriteData
 import parts
 
 
@@ -25,15 +26,16 @@ class MenuScreen(object):
         self.font_button = None
         self.menu_op = Operation(0, 0)
         self.load_data = LoadData()
-        # self.sub_menu = SubMenuPopUp(screen_width,screen_height)
+        self.game_info = {}
+        self.sub_menu = None
 
     def expand_screen(self, caption_title):
-        pygame.init()
         self.load_data.load_option("option.csv")
-        if self.load_data.is_full_screen:
+        if self.load_data.options["FULL SCREEN"]:
             self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), FULLSCREEN)
         else:
             self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        self.sub_menu = SubMenuPopUp(self.screen, self.screen_width, self.screen_height)
         pygame.display.set_caption(caption_title)
 
     def setup_menu_screen(self, title="Stealth Game", title_size=None, button_size=None, **buttons_name):
@@ -60,7 +62,8 @@ class MenuScreen(object):
         self.direction_key = list(self.direction.keys())
 
     def draw_menu_screen(self):
-        self.setup_menu_screen("Stealth Game", start=1, load=2, option=3, exit="exit")
+        self.load_data.load_menu_data_file("0")
+        self.setup_menu_screen(self.load_data.menu_title, **self.load_data.menu_buttons)
         while self.menu_op.is_running:
             self.screen.fill((0, 0, 0))
 
@@ -72,71 +75,131 @@ class MenuScreen(object):
                                   self.screen_height // 30)
 
             pygame.display.update()
-            self.menu_op.menu_operation(len(self.buttons))
+            self.menu_op.menu_operation(len(self.buttons), True)
 
-            try:
-                if self.direction[self.direction_key[self.menu_op.screen_address]] == "exit":
-                    pygame.quit()
-                    sys.exit()
-                self.load_data.load_menu_data_file(str(self.direction[self.direction_key[self.menu_op.screen_address]]))
-                self.setup_menu_screen(self.load_data.menu_title, **self.load_data.menu_buttons)
-            except TypeError:
-                pass
-
-            # self.change_menu_screen()
+            self.change_menu_screen()
 
     def change_menu_screen(self):
+        command = None
         try:
-            if self.direction[self.direction_key[self.menu_op.screen_address]] == 0:
-                self.setup_menu_screen("Stealth Game", start=1, load=2, option=3, exit="exit")
-
-            if self.direction[self.direction_key[self.menu_op.screen_address]] == 1:
-                self.setup_menu_screen("難易度は?", Original=11, Easy=12, ホームに戻る=0)
-
-            if self.direction[self.direction_key[self.menu_op.screen_address]] == 2:
-                self.setup_menu_screen("ロード画面", セーブデータ1=21, セーブデータ2=22, セーブデータ3=23,
-                                       ホームに戻る=0)
-
-            if self.direction[self.direction_key[self.menu_op.screen_address]] == 3:
-                self.setup_menu_screen("オプション", スクリーン設定=31, ホームに戻る=0)
-
-            if self.direction[self.direction_key[self.menu_op.screen_address]] == "exit":
-                pygame.quit()
-                sys.exit()
-
-            if self.direction[self.direction_key[self.menu_op.screen_address]] == 11:
-                pass
-
-            if self.direction[self.direction_key[self.menu_op.screen_address]] == 12:
-                pass
-
-            if self.direction[self.direction_key[self.menu_op.screen_address]] == 21:
-                pass
-
-            if self.direction[self.direction_key[self.menu_op.screen_address]] == 22:
-                pass
-
-            if self.direction[self.direction_key[self.menu_op.screen_address]] == 23:
-                pass
-
-            if self.direction[self.direction_key[self.menu_op.screen_address]] == 31:
-                self.sub_menu.draw_sub_menu()
-
+            command = self.direction[self.direction_key[self.menu_op.command]]
+            self.menu_op.command = None
         except TypeError:
             pass
 
+        try:
+            if command == "exit":
+                pygame.quit()
+                sys.exit()
+            self.load_data.load_menu_data_file(str(command))
+            self.setup_menu_screen(self.load_data.menu_title, **self.load_data.menu_buttons)
 
-class SubMenuPopUp(MenuScreen):
+        except FileNotFoundError:
+            try:
+                self.load_data.load_popup_menu_file(str(command))
+                self.sub_menu.setup_sub_menu(self.load_data.popup_text, **self.load_data.popup_buttons)
+                self.sub_menu.draw_sub_menu()
+            except FileNotFoundError:
+                pass
 
-    def __init__(self, screen_width, screen_height):
+
+class SubMenuPopUp(object):
+
+    def __init__(self, screen, screen_width, screen_height):
+        self.screen = screen
+        self.screen_width = screen_width
+        self.screen_height = screen_height
         self.popup_width = screen_width // 2
         self.popup_height = screen_height // 2
-        super().__init__(self.popup_width, self.popup_height)
+        self.text = None
+        self.text_position = None
+        self.font_text = None
+        self.font_button = None
+        self.bold_font_button = None
+        self.popup_op = Operation(0, 0)
+        self.direction = {}
+        self.buttons = []
+        self.bold_font_buttons = []
+        self.buttons_position = []
+        self.buttons_length = []
+        self.direction_key = None
+        self.load_popup = LoadData()
+        self.write = WriteData()
+        self.running = True
 
-    def setup_sub_menu(self, title, **buttons_name):
-        super().setup_menu_screen(title, 30, 20, **buttons_name)
+    def setup_sub_menu(self, text, **buttons_name):
+        # buttons_nameは２つまで!!!
+        if len(buttons_name) > 2:
+            raise ExceedError("buttons_nameは２個まで")
+        self.popup_op.square_x = 0
+        self.popup_op.screen_address = None
+        self.direction = {}
+        self.buttons = []
+        self.bold_font_buttons = []
+        self.buttons_position = []
+        self.buttons_length = []
+        self.direction_key = None
+        self.running = True
+
+        self.font_text = pygame.font.Font("PixelMplus12-Regular.ttf", self.popup_height // 15)
+        self.font_button = pygame.font.Font("PixelMplus12-Regular.ttf", self.popup_height // 15)
+        self.bold_font_button = pygame.font.Font("PixelMplus12-Bold.ttf", self.popup_height // 15)
+
+        self.text = self.font_text.render(text, True, (255, 255, 255))
+        self.text_position = self.text.get_rect(center=(self.screen_width // 2, self.screen_height // 3))
+        for position, button in enumerate(buttons_name.keys()):
+            self.direction[button] = buttons_name[button]
+            self.buttons.append(self.font_button.render(button, True, (125, 125, 125)))
+            self.bold_font_buttons.append(self.bold_font_button.render(button, True, (255, 255, 255)))
+            self.buttons_position.append(self.buttons[position].get_rect(
+                center=(self.screen_width // 2 - self.popup_width // 6 + (self.popup_width // 3) * position,
+                        self.screen_height // 2 + self.popup_height // 6)))
+
+        self.direction_key = list(self.direction.keys())
 
     def draw_sub_menu(self):
-        pygame.draw.rect(self.screen, (0, 0, 0), (self.popup_width, self.popup_height,
-                                                  self.popup_width, self.screen_height))
-        # self.setup_sub_menu("スクリーン設定", フルスクリーン=,
+        while self.running:
+            parts.popup_rect(self.screen, self.screen_width // 2, self.screen_height // 2, self.popup_width,
+                             self.popup_height)
+            self.screen.blit(self.text, self.text_position)
+            if self.popup_op.square_x == 0:
+                self.screen.blit(self.bold_font_buttons[0], self.buttons_position[0])
+                self.screen.blit(self.buttons[1], self.buttons_position[1])
+            elif self.popup_op.square_x == 1:
+                self.screen.blit(self.buttons[0], self.buttons_position[0])
+                self.screen.blit(self.bold_font_buttons[1], self.buttons_position[1])
+
+            pygame.display.update()
+
+            self.popup_op.popup_operation(True)
+            self.reflection_command()
+
+    def reflection_command(self):
+        command = None
+        try:
+            command = self.direction[self.direction_key[self.popup_op.command]]
+            self.popup_op.command = None
+        except TypeError:
+            pass
+
+        try:
+            if command == "return":
+                self.running = False
+
+            if command == "31":
+                self.load_popup.load_option()
+                self.write.change_option("option.csv", "FULL SCREEN")
+                self.load_popup.load_option()
+                if self.load_popup.options["FULL SCREEN"]:
+                    self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), FULLSCREEN)
+                else:
+                    self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+                self.running = False
+
+        except FileNotFoundError:
+            pass
+        self.popup_op.command = None
+
+
+class ExceedError(Exception):
+    pass
