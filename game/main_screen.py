@@ -1,4 +1,4 @@
-import game_screen
+#import game_screen
 import menu_screen
 
 SCREEN_WIDTH = 800

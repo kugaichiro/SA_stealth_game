@@ -2,7 +2,7 @@ from pygame.locals import *
 import pygame
 import sys
 
-import prototype.view.parts
+import prototype.game.parts
 
 
 def main():

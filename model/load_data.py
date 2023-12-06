@@ -1,6 +1,10 @@
 import csv
 import os
 from distutils.util import strtobool
+import pygame
+from pygame.locals import *
+
+NumOfMapTip = 3
 
 
 class LoadData(object):
@@ -14,6 +18,7 @@ class LoadData(object):
         self.option_dir_path = self.system_dir_path
         self.menu_data_dir_path = os.path.join(self.system_dir_path, "menudata")
         self.stage_data_dir_path = os.path.join(self.system_dir_path, "stagedata")
+        self.picture_data_dir_path = os.path.join(self.system_dir_path, "picture")
         self.option_file_path = None
         self.menu_data_file_path = None
         self.popup_data_file_path = None
@@ -30,7 +35,11 @@ class LoadData(object):
         self.popup_text = None
         self.popup_buttons = None
 
-        self.map_info = None
+        self.map_info = []
+
+        self.maptips = []
+
+        self.charactor = {}
 
     def get_directory(self):
         # ファイルのある階層のディレクトリパスを取得
@@ -91,13 +100,30 @@ class LoadData(object):
         else:
             raise FileNotFoundError
 
-
     def load_map_file(self, map_num):
         self.stage_data_file_path = os.path.join(self.stage_data_dir_path, "stage" + str(map_num) + ".txt")
-
         with open(self.stage_data_file_path, 'r', encoding="utf8", newline="") as file:
-            self.map_info = file.readlines()
+            file_info = file.readlines()
+        for row in range(12):
+            self.map_info.append(file_info[row][:17])
 
-        for row, info in enumerate(self.map_info):
-            self.map_info[row] = info[:20]
+    def load_map_tip(self):
+
+        for map_tip_num in range(NumOfMapTip):
+            maptip_file_path = os.path.join(self.picture_data_dir_path, "maptip" + str(map_tip_num) + ".jpg")
+            self.maptips.append(pygame.image.load(maptip_file_path))
+
+    def load_charactor(self, name: str):
+        self.charactor[name] = []
+
+        charactor_dir_path = os.path.join(self.picture_data_dir_path, "charactor")
+        for direction in range(4):
+            charactor_file_path = os.path.join(charactor_dir_path, name + str(direction) + ".jpg")
+            if os.path.exists(charactor_file_path):
+                charactor = pygame.image.load(charactor_file_path).convert()
+                color_transparent = charactor.get_at((0, 0))
+                charactor.set_colorkey(color_transparent, RLEACCEL)
+                self.charactor[name].append(charactor)
+            else:
+                raise FileNotFoundError
 
