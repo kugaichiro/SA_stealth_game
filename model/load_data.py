@@ -111,7 +111,7 @@ class LoadData(object):
         with open(stage_data_file_path, 'r', encoding="utf8", newline="") as file:
             file_info = file.readlines()
         for row in range(12):
-            self.map_info.append(file_info[row][:16])
+            self.map_info.append(file_info[row][:32])
 
     def load_enemy(self, map_num):
         stageinside_data_file_path = os.path.join(self.stageinside_data_dir_path, "stage" + str(map_num) + ".txt")

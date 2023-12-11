@@ -60,9 +60,11 @@ class GameScreen(object):
 
     def draw_map(self, map_address):
         self.load_data.load_map_file(map_address)
-        for row in range(16):
-            for column in range(12):
-                self.screen.blit(self.load_data.maptips[int(self.load_data.map_info[column][row])], (row*50, column*50))
+        for row in range(12):
+            for column in range(15):
+                print(int(self.load_data.map_info[row][2*column:2*(column+1)]))
+                self.screen.blit(self.load_data.maptips[int(self.load_data.map_info[row][2*column:2*(column+1)])],
+                                 (column*50, row*50))
 
 
 """G = GameScreen(800, 600)
