@@ -4,7 +4,7 @@ from distutils.util import strtobool
 import pygame
 from pygame.locals import *
 
-NumOfMapTip = 3
+NumOfMapTip = 8
 
 
 class LoadData(object):
@@ -17,8 +17,11 @@ class LoadData(object):
         self.system_dir_path = os.path.join(str(self.parent_dir), "system-data")
         self.option_dir_path = self.system_dir_path
         self.menu_data_dir_path = os.path.join(self.system_dir_path, "menudata")
-        self.stage_data_dir_path = os.path.join(self.system_dir_path, "stagedata")
-        self.picture_data_dir_path = os.path.join(self.system_dir_path, "picture")
+        self.game_data_dir_path = os.path.join(self.system_dir_path, "gamedata")
+        self.savedata_dir_path = os.path.join(self.system_dir_path, "savedata")
+        self.stageview_data_dir_path = os.path.join(self.game_data_dir_path, "stageviewdata")
+        self.stageinside_data_dir_path = os.path.join(self.game_data_dir_path, "stageenemydata")
+        self.picture_data_dir_path = os.path.join(self.game_data_dir_path, "picture")
         self.option_file_path = None
         self.menu_data_file_path = None
         self.popup_data_file_path = None
@@ -40,6 +43,8 @@ class LoadData(object):
         self.maptips = []
 
         self.charactor = {}
+
+        self.enemies = {}
 
     def get_directory(self):
         # ファイルのある階層のディレクトリパスを取得
@@ -101,11 +106,24 @@ class LoadData(object):
             raise FileNotFoundError
 
     def load_map_file(self, map_num):
-        self.stage_data_file_path = os.path.join(self.stage_data_dir_path, "stage" + str(map_num) + ".txt")
-        with open(self.stage_data_file_path, 'r', encoding="utf8", newline="") as file:
+        stage_data_file_path = os.path.join(self.stageview_data_dir_path, "stage" + str(map_num) + ".txt")
+        self.map_info = []
+        with open(stage_data_file_path, 'r', encoding="utf8", newline="") as file:
             file_info = file.readlines()
         for row in range(12):
-            self.map_info.append(file_info[row][:17])
+            self.map_info.append(file_info[row][:16])
+
+    def load_enemy(self, map_num):
+        stageinside_data_file_path = os.path.join(self.stageinside_data_dir_path, "stage" + str(map_num) + ".txt")
+        with open(stageinside_data_file_path, 'r', encoding="utf8", newline="") as file:
+            file_info = file.readlines()
+        for row in range(12):
+            if file_info[row].count('0') != 16:
+                for column in range(16):
+                    if file_info[column] not in self.enemies:
+                        self.enemies[file_info[column]] = [[row, column]]
+                    else:
+                        self.enemies[file_info[column]].append([row, column])
 
     def load_map_tip(self):
 
@@ -126,4 +144,26 @@ class LoadData(object):
                 self.charactor[name].append(charactor)
             else:
                 raise FileNotFoundError
+            
+    def load_savedata(self, file_name: str):
+        savedata_file_path = os.path.join(self.savedata_dir_path, "savedata" + file_name + ".csv")
+        if os.path.exists(savedata_file_path):
+            with open(savedata_file_path, 'r', encoding="utf8", newline="") as csvfile:
+                csv_reader = csv.reader(csvfile)
+                data = [row for row in csv_reader]
+                self.map_address = int(data[0][0])
+                self.position = data[1]
+                for row in data[2:]:
+                    self.items[row[0]] = int(row[1])
+        else:
+            raise FileNotFoundError
+        
+    def get_command(self):
+        command_file_path = os.path.join(self.system_dir_path, "command.csv")
+        if os.path.exists(command_file_path):
+            with open(command_file_path, 'r', encoding="utf8", newline="") as csvfile:
+                csv_reader = csv.reader(csvfile)
+                self.command = [row for row in csv_reader]
+        else:
+            raise FileNotFoundError
 

@@ -23,4 +23,4 @@ def human(screen, x, y):
     color_transparent = human.get_at((0, 0))
     human.set_colorkey(color_transparent, RLEACCEL)
 
-    screen.blit(human, (x - 25, y- 25))
+    screen.blit(human, (x - 25, y - 25))

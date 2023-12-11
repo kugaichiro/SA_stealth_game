@@ -2,9 +2,14 @@ import pygame
 import sys
 from pygame.locals import *
 
-from prototype.operation.operation_user import Operation
-from prototype.model.load_data import LoadData
-from prototype.model.write_data import WriteData
+try:
+    from prototype.operation.operation_user import Operation
+    from prototype.model.load_data import LoadData
+    from prototype.model.write_data import WriteData
+except ModuleNotFoundError:
+    from ..operation.operation_user import Operation
+    from ..model.load_data import LoadData
+    from ..model.write_data import WriteData
 import parts
 
 
@@ -28,6 +33,7 @@ class MenuScreen(object):
         self.load_data = LoadData()
         self.game_info = {}
         self.sub_menu = None
+        self.is_game_start = False
 
     def expand_screen(self, caption_title):
         self.load_data.load_option("option.csv")
@@ -99,6 +105,7 @@ class MenuScreen(object):
                 self.load_data.load_popup_menu_file(str(command))
                 self.sub_menu.setup_sub_menu(self.load_data.popup_text, **self.load_data.popup_buttons)
                 self.sub_menu.draw_sub_menu()
+                self.menu_op.is_running = not self.sub_menu.is_game_start
             except FileNotFoundError:
                 pass
 
@@ -125,7 +132,8 @@ class SubMenuPopUp(object):
         self.direction_key = None
         self.load_popup = LoadData()
         self.write = WriteData()
-        self.running = True
+        self.is_running = True
+        self.is_game_start = False
 
     def setup_sub_menu(self, text, **buttons_name):
         # buttons_nameは２つまで!!!
@@ -139,7 +147,7 @@ class SubMenuPopUp(object):
         self.buttons_position = []
         self.buttons_length = []
         self.direction_key = None
-        self.running = True
+        self.is_running = True
 
         self.font_text = pygame.font.Font("PixelMplus12-Regular.ttf", self.popup_height // 15)
         self.font_button = pygame.font.Font("PixelMplus12-Regular.ttf", self.popup_height // 15)
@@ -158,7 +166,7 @@ class SubMenuPopUp(object):
         self.direction_key = list(self.direction.keys())
 
     def draw_sub_menu(self):
-        while self.running:
+        while self.is_running:
             parts.popup_rect(self.screen, self.screen_width // 2, self.screen_height // 2, self.popup_width,
                              self.popup_height)
             self.screen.blit(self.text, self.text_position)
@@ -184,17 +192,33 @@ class SubMenuPopUp(object):
 
         try:
             if command == "return":
-                self.running = False
+                self.is_running = False
 
-            if command == "31":
-                self.load_popup.load_option()
-                self.write.change_option("option.csv", "FULL SCREEN")
-                self.load_popup.load_option()
-                if self.load_popup.options["FULL SCREEN"]:
-                    self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), FULLSCREEN)
-                else:
-                    self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
-                self.running = False
+            if command == "start":
+                self.is_running = False
+                self.is_game_start = True
+                
+            try:
+                command = int(command)
+                if 21 <= command <= 23:
+                    self.write.keep_command(command=command-20)
+                    self.is_running = False
+
+                if command == 31:
+                    self.load_popup.load_option()
+                    self.write.change_option("option.csv", "FULL SCREEN")
+                    self.load_popup.load_option()
+                    if self.load_popup.options["FULL SCREEN"]:
+                        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), FULLSCREEN)
+                    else:
+                        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+                    self.running = False
+            except ValueError:
+                pass
+            except TypeError:
+                pass
+            
+            
 
         except FileNotFoundError:
             pass

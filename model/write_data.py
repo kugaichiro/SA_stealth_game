@@ -1,7 +1,10 @@
 import csv
 import os
 
-from prototype.model.load_data import LoadData
+try: 
+    from prototype.model.load_data import LoadData
+except ModuleNotFoundError:
+    from model.load_data import LoadData
 
 
 class WriteData(object):
@@ -11,7 +14,8 @@ class WriteData(object):
         self.parent_dir = None
         self.get_directory()
 
-        self.system_file_path = os.path.join(str(self.parent_dir), "system-data")
+        self.system_file_path = os.path.join(self.parent_dir, "system-data")
+        self.savedata_dir_path = os.path.join(self.system_file_path, "savedata")
         self.option_file_path = None
         self.file_name = None
         self.field_name = None
@@ -41,12 +45,25 @@ class WriteData(object):
         else:
             raise FileNotFoundError
 
-    def write_file(self, file_name: str, field_name: list, **resource):
-        self.file_name = file_name
-        self.resource = resource
-        with open(self.file_name, 'w', encoding="utf8", newline="") as csvfile:
-            self.field_name = field_name
-            writer = csv.DictWriter(csvfile, self.field_name)
-            writer.writeheader()
-            for key, value in self.resource.items():
-                writer.writerow({self.field_name[0]: key, self.field_name[1]: value})
+    def save_data(self, file_name: str, last_map_address: int, last_position: list, **resource):
+        savedata_file_path = os.path.join(self.savedata_dir_path, file_name)
+        with open(savedata_file_path, 'w', encoding="utf8", newline="") as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow([last_map_address])
+            writer.writerow(last_position)
+            for item, num in resource.items():
+                writer.writerow([item, num])
+                
+    def keep_command(self, **commands):
+        command_file_path = os.path.join(self.system_file_path, "command.csv")
+        self.load.get_command()
+        with open(command_file_path, 'a', encoding="utf8", newline="") as csvfile:
+            writer = csv.writer(csvfile)
+            for command, value in commands.items():
+                writer.writerow([command, value])
+                
+    def clear_command(self):
+        command_file_path = os.path.join(self.system_file_path, "command.csv")
+        with open(command_file_path, 'w', encoding="utf8", newline="") as csvfile:
+            pass
+                
