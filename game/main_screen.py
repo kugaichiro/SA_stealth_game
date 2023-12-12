@@ -1,6 +1,9 @@
-import game_screen
-import menu_screen
-import pygame
+try:
+    from prototype.game import game_screen
+    from prototype.game import menu_screen
+except ModuleNotFoundError:
+    from game import game_screen
+    from game import menu_screen
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600

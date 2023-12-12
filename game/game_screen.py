@@ -6,12 +6,14 @@ try:
     from prototype.operation.operation_user import Operation
     from prototype.model.load_data import LoadData
     from prototype.model.write_data import WriteData
-except ModuleNotFoundError:
-    from ..operation.operation_user import Operation
-    from ..model.load_data import LoadData
-    from ..model.write_data import WriteData
-
-import parts
+    from prototype.game import enemies_AI
+    import parts
+except ImportError:
+    from operation.operation_user import Operation
+    from model.load_data import LoadData
+    from model.write_data import WriteData
+    from game import enemies_AI
+    from game import parts
 
 
 class GameScreen(object):
@@ -61,8 +63,7 @@ class GameScreen(object):
     def draw_map(self, map_address):
         self.load_data.load_map_file(map_address)
         for row in range(12):
-            for column in range(15):
-                print(int(self.load_data.map_info[row][2*column:2*(column+1)]))
+            for column in range(16):
                 self.screen.blit(self.load_data.maptips[int(self.load_data.map_info[row][2*column:2*(column+1)])],
                                  (column*50, row*50))
 
@@ -109,8 +110,8 @@ class SubGamePupUp(object):
         self.direction_key = None
         self.is_running = True
 
-        self.font_title = pygame.font.Font("PixelMplus12-Regular.ttf", int(self.popup_height // 15))
-        self.font_button = pygame.font.Font("PixelMplus12-Regular.ttf", int(self.popup_height // 15))
+        self.font_title = pygame.font.Font("system-data/PixelMplus12-Regular.ttf", int(self.popup_height // 15))
+        self.font_button = pygame.font.Font("system-data/PixelMplus12-Regular.ttf", int(self.popup_height // 15))
 
         self.title = self.font_title.render(title, True, (255, 255, 255))
         self.title_position = self.title.get_rect(center=(self.screen_width // 2, self.screen_height // 3))

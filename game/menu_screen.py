@@ -6,11 +6,12 @@ try:
     from prototype.operation.operation_user import Operation
     from prototype.model.load_data import LoadData
     from prototype.model.write_data import WriteData
+    import parts
 except ModuleNotFoundError:
-    from ..operation.operation_user import Operation
-    from ..model.load_data import LoadData
-    from ..model.write_data import WriteData
-import parts
+    from operation.operation_user import Operation
+    from model.load_data import LoadData
+    from model.write_data import WriteData
+    from game import parts
 
 
 class MenuScreen(object):
@@ -52,8 +53,8 @@ class MenuScreen(object):
         self.buttons_position = []
         self.buttons_length = []
 
-        self.font_title = pygame.font.Font("PixelMplus12-Regular.ttf", self.screen_height // 6)
-        self.font_button = pygame.font.Font("PixelMplus12-Regular.ttf", self.screen_height // 15)
+        self.font_title = pygame.font.Font("system-data/PixelMplus12-Regular.ttf", self.screen_height // 6)
+        self.font_button = pygame.font.Font("system-data/PixelMplus12-Regular.ttf", self.screen_height // 15)
 
         self.title = self.font_title.render(title, True, (255, 0, 0))
         self.title_position = self.title.get_rect(center=(self.screen_width // 2, self.screen_height // 3))
@@ -149,9 +150,9 @@ class SubMenuPopUp(object):
         self.direction_key = None
         self.is_running = True
 
-        self.font_text = pygame.font.Font("PixelMplus12-Regular.ttf", self.popup_height // 15)
-        self.font_button = pygame.font.Font("PixelMplus12-Regular.ttf", self.popup_height // 15)
-        self.bold_font_button = pygame.font.Font("PixelMplus12-Bold.ttf", self.popup_height // 15)
+        self.font_text = pygame.font.Font("system-data/PixelMplus12-Regular.ttf", self.popup_height // 15)
+        self.font_button = pygame.font.Font("system-data/PixelMplus12-Regular.ttf", self.popup_height // 15)
+        self.bold_font_button = pygame.font.Font("system-data/PixelMplus12-Bold.ttf", self.popup_height // 15)
 
         self.text = self.font_text.render(text, True, (255, 255, 255))
         self.text_position = self.text.get_rect(center=(self.screen_width // 2, self.screen_height // 3))
