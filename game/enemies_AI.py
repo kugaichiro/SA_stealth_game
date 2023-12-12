@@ -13,7 +13,7 @@ class EnemiesAI(object):
 
     def setup_routes(self, enemies_route: dict):
         self.enemies_routes = enemies_route
-        self.enemies = enemies_route.keys()
+        self.enemies = list(enemies_route.keys())
         self.num_enemies = len(self.enemies)
         self.enemies_position = {self.enemies[i]: self.enemies_routes[self.enemies[i]][0] for i in range(self.num_enemies)}
 

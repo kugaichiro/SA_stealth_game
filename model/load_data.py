@@ -44,7 +44,7 @@ class LoadData(object):
 
         self.charactor = {}
 
-        self.enemies = {}
+        self.enemies_route = {}
 
     def get_directory(self):
         # ファイルのある階層のディレクトリパスを取得
@@ -120,10 +120,11 @@ class LoadData(object):
         for row in range(12):
             if file_info[row].count('0') != 16:
                 for column in range(16):
-                    if file_info[column] not in self.enemies:
-                        self.enemies[file_info[column]] = [[row, column]]
-                    else:
-                        self.enemies[file_info[column]].append([row, column])
+                    if file_info[row][column] != 0:
+                        if file_info[row][column] not in self.enemies_route.keys():
+                            self.enemies_route[file_info[row][column]] = [[row, column]]
+                        else:
+                            self.enemies_route[file_info[row][column]].append([row, column])
 
     def load_map_tip(self):
 
