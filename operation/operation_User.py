@@ -160,28 +160,34 @@ class Operation(BasicOperation):
     def game_operation(self, width, height, map_info, can_operate: bool = True):
 
         if can_operate:
-            is_thorough_blocks = [1, 2]
+            wall_blocks = [1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19]
             pygame.key.set_repeat(200, 100)
             for event in pygame.event.get():
                 self.square_y = self.y // 50
                 self.square_x = self.x // 50
+                
                 try:
-                    if not (int(map_info[self.square_y - 1][2*self.square_x:2*(self.square_x+1)]) in is_thorough_blocks):
+                    if self.square_y - 1 < 0:
+                        self.square_y = len(map_info) + 1
+                    if not (int(map_info[self.square_y - 1][2*self.square_x:2*(self.square_x+1)]) in wall_blocks):
                         self.map_address += super().up_y(event, height)
                 except IndexError:
                     self.map_address += super().up_y(event, height)
+                    self.square_y = 0
                 try:
-                    if not (int(map_info[self.square_y + 1][2*self.square_x:2*(self.square_x+1)]) in is_thorough_blocks):
+                    if not (int(map_info[self.square_y + 1][2*self.square_x:2*(self.square_x+1)]) in wall_blocks):
                         self.map_address += super().down_y(event, height)
                 except IndexError:
                     self.map_address += super().down_y(event, height)
                 try:
-                    if not (int(map_info[self.square_y][2*(self.square_x + 1):2*(self.square_x+2)]) in is_thorough_blocks):
+                    if not (int(map_info[self.square_y][2*(self.square_x + 1):2*(self.square_x+2)]) in wall_blocks):
                         self.map_address += super().right_x(event, width)
                 except ValueError:
                     self.map_address += super().right_x(event, width)
                 try:
-                    if not (int(map_info[self.square_y][2*(self.square_x - 1):2*self.square_x]) in is_thorough_blocks):
+                    if self.square_x - 1 < 0:
+                        self.square_x = len(map_info[0])
+                    if not (int(map_info[self.square_y][2*(self.square_x - 1):2*self.square_x]) in wall_blocks):
                         self.map_address += super().left_x(event, width)
                 except ValueError:
                     self.map_address += super().left_x(event, width)

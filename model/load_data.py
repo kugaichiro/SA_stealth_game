@@ -4,7 +4,8 @@ from distutils.util import strtobool
 import pygame
 from pygame.locals import *
 
-NumOfMapTip = 8
+#マップチップの数が増えた場合は、ここの数字を変更してください。そうしないとエラーが出ます。
+NumOfMapTip = 27
 
 
 class LoadData(object):
@@ -114,17 +115,19 @@ class LoadData(object):
             self.map_info.append(file_info[row][:32])
 
     def load_enemy(self, map_num):
+        self.enemies_route = {}
         stageinside_data_file_path = os.path.join(self.stageinside_data_dir_path, "stage" + str(map_num) + ".txt")
         with open(stageinside_data_file_path, 'r', encoding="utf8", newline="") as file:
             file_info = file.readlines()
         for row in range(12):
+            #0以外の数字があるかを判別するために、0の数を数える
             if file_info[row].count('0') != 16:
                 for column in range(16):
-                    if file_info[row][column] != 0:
+                    if int(file_info[row][column]) != 0:
                         if file_info[row][column] not in self.enemies_route.keys():
-                            self.enemies_route[file_info[row][column]] = [[row, column]]
+                            self.enemies_route[file_info[row][column]] = [[column, row]]
                         else:
-                            self.enemies_route[file_info[row][column]].append([row, column])
+                            self.enemies_route[file_info[row][column]].append([column, row])
 
     def load_map_tip(self):
 
