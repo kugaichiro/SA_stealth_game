@@ -140,7 +140,7 @@ class SubMenuPopUp(object):
     def setup_sub_menu(self, text, **buttons_name):
         # buttons_nameは２つまで!!!
         if len(buttons_name) > 2:
-            raise ExceedError("buttons_nameは２個まで")
+            raise ExceedError("buttons_nameは2個まで")
         self.popup_op.square_x = 0
         self.popup_op.screen_address = None
         self.direction = {}

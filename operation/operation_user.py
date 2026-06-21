@@ -160,7 +160,7 @@ class Operation(BasicOperation):
     def game_operation(self, width, height, map_info, can_operate: bool = True):
 
         if can_operate:
-            wall_blocks = [1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19]
+            wall_blocks = [1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22, 23, 24, 25]
             pygame.key.set_repeat(200, 100)
             for event in pygame.event.get():
                 self.square_y = self.y // 50
@@ -191,6 +191,7 @@ class Operation(BasicOperation):
                         self.map_address += super().left_x(event, width)
                 except ValueError:
                     self.map_address += super().left_x(event, width)
+                    self.square_x = 0
                 self.change_direction(event)
                 self.is_expand_popup = super().escape(event)
 
