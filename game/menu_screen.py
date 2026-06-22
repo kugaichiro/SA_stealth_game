@@ -45,7 +45,7 @@ class MenuScreen(object):
         self.sub_menu = SubMenuPopUp(self.screen, self.screen_width, self.screen_height)
         pygame.display.set_caption(caption_title)
 
-    def setup_menu_screen(self, title="Stealth Game", title_size=None, button_size=None, **buttons_name):
+    def setup_menu_screen(self, title="Stealth Game", **buttons_name):
         self.menu_op.square_y = 0
         self.menu_op.screen_address = None
         self.direction = {}
@@ -65,6 +65,7 @@ class MenuScreen(object):
                 self.buttons[position].get_rect(center=(self.screen_width // 2,
                                                         self.screen_height // 2 + (
                                                                 self.screen_height // 15) * position)))
+            #三角カーソルの横の位置をそれぞれに合わせるために、ボタンの長さを取得する
             self.buttons_length.append(self.font_button.size(button + "  ")[0])
         self.direction_key = list(self.direction.keys())
 
@@ -139,7 +140,7 @@ class SubMenuPopUp(object):
     def setup_sub_menu(self, text, **buttons_name):
         # buttons_nameは２つまで!!!
         if len(buttons_name) > 2:
-            raise ExceedError("buttons_nameは２個まで")
+            raise ExceedError("buttons_nameは2個まで")
         self.popup_op.square_x = 0
         self.popup_op.screen_address = None
         self.direction = {}

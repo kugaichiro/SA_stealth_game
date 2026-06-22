@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import sys
+import time
 
 try:
     from prototype.operation.operation_user import Operation
@@ -30,6 +31,7 @@ class GameScreen(object):
         self.enemies_AI = EnemiesAI()
         self.game_popup = None
         self.item_list = []
+        self.game_screen_map_address = None
 
     def expand_game_screen(self, caption_title="Stealth Game"):
         self.load_data.load_option("option.csv")
@@ -48,46 +50,67 @@ class GameScreen(object):
     def draw_game_screen(self):
         self.setup_game_screen()
         while self.game_op.is_running:
-            self.screen.fill((255, 255, 255))
-            self.draw_map(self.game_op.map_address)
-            self.screen.blit(self.load_data.charactor["player"][self.game_op.charactor_direction],
-                             [self.game_op.x, self.game_op.y])
-            #敵の描写
-            try:
-                for enemy in range(self.enemies_AI.num_enemies):
-                    self.screen.blit(self.load_data.charactor["guardman"]
-                                    [self.enemies_AI.enemies_direction[self.enemies_AI.enemies[enemy]]],
-                                    self.enemies_AI.enemies_position[enemy])
-            except KeyError:
-                pass
-            #敵の移動
-            self.enemies_AI.move_enemy()
-            #プレイヤーの操作
+            if self.game_op.map_address != self.game_screen_map_address:
+                self.draw_map(self.game_op.map_address)
+                self.game_screen_map_address = self.game_op.map_address
+            self.screen.fill((0, 0, 0))
+            for row in range(12):
+                for column in range(16):
+                    self.screen.blit(self.load_data.maptips[int(self.load_data.map_info[row][2*column:2*(column+1)])],
+                                    (column*50, row*50))
+                    
             self.game_op.game_operation(self.screen_width, self.screen_height,
                                         self.load_data.map_info, True)
+            self.screen.blit(self.load_data.charactor["player"][self.game_op.charactor_direction],
+                             [self.game_op.x, self.game_op.y])
+            #敵の移動
+            self.enemies_AI.move_enemy(self.game_op.square_x, self.game_op.square_y, self.load_data.map_info)
+            #敵の描写
+            for enemy in range(self.enemies_AI.num_enemies):
+                self.screen.blit(self.load_data.charactor["guardman"]
+                                [self.enemies_AI.enemies_direction[self.enemies_AI.enemies[enemy]]],
+                                [self.enemies_AI.enemies_position[str(enemy+1)][0]*50,
+                                 self.enemies_AI.enemies_position[str(enemy+1)][1]*50])
+            
+            #プレイヤーの操作
+            
             if self.game_op.is_expand_popup:
                 self.game_popup.setup_sub_menu("Pause", ゲームを再開="return", ゲームをセーブ=1,
                                                ゲームをロード=2, メインメニュー="mainmenu")
                 self.game_popup.draw_sub_menu()
                 self.game_op.is_running = not self.game_popup.is_return_menu
                 self.game_op.is_expand_popup = False
+            if self.enemies_AI.is_found_player:
+                text_font = pygame.font.Font("system-data/PixelMplus12-Regular.ttf", self.screen_height // 6)
+                text = text_font.render("GAME OVER", True, (255, 0, 0))
+                text_position = text.get_rect(center=(self.screen_width // 2,self.screen_height // 2))
+                t1 = time.time()
+                self.screen.blit(text, text_position)
+                pygame.display.update()
+                while time.time() - t1 < 5:
+                    pass
+                self.game_op.is_running = False
+            try:
+                if self.load_data.map_info[self.game_op.square_y][2*self.game_op.square_x:2*(self.game_op.square_x+1)] == "18":
+                    text_font = pygame.font.Font("system-data/PixelMplus12-Regular.ttf", self.screen_height // 6)
+                    text = text_font.render("GAME CLEAR", True, (0, 0, 0))
+                    text_position = text.get_rect(center=(self.screen_width // 2,self.screen_height // 2))
+                    t1 = time.time()
+                    self.screen.blit(text, text_position)
+                    pygame.display.update()
+                    while time.time() - t1 < 5:
+                        pass
+                    self.game_op.is_running = False
+            except IndexError:
+                pass
             pygame.display.update()
 
     def draw_map(self, map_address):
         self.load_data.load_map_file(map_address)
-        for row in range(12):
-            for column in range(16):
-                self.screen.blit(self.load_data.maptips[int(self.load_data.map_info[row][2*column:2*(column+1)])],
-                                 (column*50, row*50))
                 
         #敵の配置とルートの情報を更新
         self.load_data.load_enemy(map_address)
         self.enemies_AI.setup_routes(self.load_data.enemies_route)
-
-
-"""G = GameScreen(800, 600)
-G.expand_game_screen("S")
-G.draw_game_screen()"""
 
 
 class SubGamePupUp(object):
